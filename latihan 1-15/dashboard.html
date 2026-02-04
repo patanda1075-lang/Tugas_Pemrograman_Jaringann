@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Live Stock Dashboard</title>
+    <style>
+        body { font-family: sans-serif; text-align: center; padding: 50px; }
+        #price-box { font-size: 4em; font-weight: bold; color: green; }
+        .log { color: gray; font-size: 0.8em; }
+    </style>
+</head>
+<body>
+    <h1>Pantauan Saham BBCA (Real-time)</h1>
+    <div id="price-box">Waiting...</div>
+    <div id="status" class="log">Disconnected</div>
+
+    <script>
+        // 1. Buka Koneksi ke Server Python
+        const socket = new WebSocket('ws://localhost:6789');
+
+        socket.onopen = function(e) {
+            document.getElementById("status").textContent = "Connected to Server ✅";
+        };
+
+        socket.onmessage = function(event) {
+            // 2. Terima Data JSON
+            const data = JSON.parse(event.data);
+
+            // Cek apakah ini data harga
+            if(data.price) {
+                const display = `Rp ${data.price}`;
+                document.getElementById("price-box").textContent = display;
+
+                // Efek visual sederhana (Warna berubah acak)
+                document.getElementById("price-box").style.color = 
+                    data.price > 8250 ? "green" : "red";
+            }
+        };
+
+        socket.onclose = function(event) {
+            document.getElementById("status").textContent = "Connection Lost ❌";
+        };
+    </script>
+</body>
+</html>
